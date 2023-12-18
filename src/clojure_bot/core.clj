@@ -17,24 +17,32 @@
 (defn parse [line]
   (cond (str/starts-with? line ":tmi.twitch.tv") nil
         (str/starts-with? line ":justinfan6969") nil
+        (str/starts-with? line "PING") (->Message "PING" "" "" "")
         :else (parse_msg line)))
 
-(defn read_loop [reader]
+(defn handle_msg [msg, writer]
+  (case (:msg-type msg)
+    "PING" (do
+             (println "Answering PING with PONG")
+             (.write writer "PONG :tmi.twitch.tv\r\n")
+             (.flush writer))
+    (println msg)))
+
+(defn read_loop [reader, writer]
   (loop []
     (let [line (.readLine reader)]
       (if (nil? line)
         (do
           (println "No more lines in reader."))
         (do
-        ;; TODO answer PING with PONG
           (let [msg (parse line)]
-            (when msg (println msg)))
+            (when msg (handle_msg msg writer)))
           (recur))))))
 
 (defn join [writer]
-  (.write writer "PASS oauth: \n\r")
-  (.write writer "NICK justinfan6969\n\r")
-  (.write writer "JOIN #matthewde\n\r")
+  (.write writer "PASS oauth: \r\n")
+  (.write writer "NICK justinfan6969\r\n")
+  (.write writer "JOIN #matthewde\r\n")
   (.flush writer))
 
 (defn run
@@ -44,7 +52,7 @@
     (with-open [writer (jio/writer socket)]
       (join writer)
       (with-open [reader (jio/reader socket)]
-        (read_loop reader)))))
+        (read_loop reader writer)))))
 
 (defn -main
   [& args]
