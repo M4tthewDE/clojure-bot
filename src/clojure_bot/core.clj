@@ -39,8 +39,8 @@
         (do
           (println "No more lines in reader."))
         (do
-          (let [msg (parse line)]
-            (when msg (handle-msg msg writer)))
+          (if-let [msg (parse line)]
+            (handle-msg msg writer))
           (recur))))))
 
 (defn join [writer]
