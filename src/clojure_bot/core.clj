@@ -8,7 +8,10 @@
 
 (defn parse_msg [line]
   (let [parts (str/split line #" ")]
-    (->Message (get parts 1) (get parts 2) (get parts 3))))
+    (->Message
+     (get parts 1)
+     (subs (get parts 2) 1)
+     (subs (str/join " " (drop 3 parts)) 1))))
 
 (defn parse [line]
   (cond (str/starts-with? line ":tmi.twitch.tv") nil
