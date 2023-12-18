@@ -8,8 +8,9 @@
     (let [line (.readLine reader)]
       (if (nil? line)
         (do
-          println "End of stream reached.")
+          (println "No more lines in reader."))
       (do
+        ;; TODO answer PING with PONG
         (println line)
         (recur))))))
 
