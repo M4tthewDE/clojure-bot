@@ -4,6 +4,11 @@
   (:require [clojure.string :as str])
   (:gen-class))
 
+(defn send_raw [writer, msg]
+  (do
+    (.write writer (str msg "\r\n"))
+    (.flush writer)))
+
 (defrecord Message [msg-type channel user content])
 
 (defn parse_msg [line]
@@ -24,8 +29,7 @@
   (case (:msg-type msg)
     "PING" (do
              (println "Answering PING with PONG")
-             (.write writer "PONG :tmi.twitch.tv\r\n")
-             (.flush writer))
+             (send_raw writer "PONG :tmi.twitch.tv"))
     (println msg)))
 
 (defn read_loop [reader, writer]
@@ -40,10 +44,9 @@
           (recur))))))
 
 (defn join [writer]
-  (.write writer "PASS oauth: \r\n")
-  (.write writer "NICK justinfan6969\r\n")
-  (.write writer "JOIN #matthewde\r\n")
-  (.flush writer))
+  (send_raw writer "PASS oauth: ")
+  (send_raw writer "NICK justinfan6969")
+  (send_raw writer "JOIN #matthewde"))
 
 (defn run
   "Starts the bot."
