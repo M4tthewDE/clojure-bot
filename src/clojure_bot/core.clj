@@ -46,15 +46,15 @@
           (recur))
         (println "No more lines in reader.")))))
 
-(defn join [writer, token, username]
-  (send-raw writer (str "PASS oauth:" token))
-  (send-raw writer (str "NICK " username))
-  (send-raw writer "JOIN #matthewde"))
+(defn join [writer, config]
+  (send-raw writer (str "PASS oauth:" (get config "token")))
+  (send-raw writer (str "NICK " (get config "username")))
+  (send-raw writer (str "JOIN #" (get config "channel"))))
 
 (defn run [config]
   (with-open [socket (Socket. "irc.chat.twitch.tv" 6667)]
     (with-open [writer (jio/writer socket)]
-      (join writer (get config "token") (get config "username"))
+      (join writer config)
       (with-open [reader (jio/reader socket)]
         (read-loop reader writer (get config "username"))))))
 
