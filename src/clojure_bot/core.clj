@@ -1,7 +1,19 @@
 (ns clojure-bot.core
   (:import [java.net Socket])
   (:require [clojure.java.io :as jio])
+  (:require [clojure.string :as str])
   (:gen-class))
+
+(defrecord Message [msg-type channel content])
+
+(defn parse_msg [line]
+  (let [parts (str/split line #" ")]
+    (->Message (get parts 1) (get parts 2) (get parts 3))))
+
+(defn parse [line]
+  (cond (str/starts-with? line ":tmi.twitch.tv") nil
+        (str/starts-with? line ":justinfan6969") nil
+        :else (parse_msg line)))
 
 (defn read_loop [reader]
   (loop []
@@ -9,10 +21,11 @@
       (if (nil? line)
         (do
           (println "No more lines in reader."))
-      (do
+        (do
         ;; TODO answer PING with PONG
-        (println line)
-        (recur))))))
+          (let [msg (parse line)]
+            (if msg (println msg)))
+          (recur))))))
 
 (defn join [writer]
   (.write writer "PASS oauth: \n\r")
