@@ -4,14 +4,14 @@
   (:require [clojure.string :as str])
   (:gen-class))
 
-(defn send_raw [writer, msg]
+(defn send-raw [writer, msg]
   (do
     (.write writer (str msg "\r\n"))
     (.flush writer)))
 
 (defrecord Message [msg-type channel user content])
 
-(defn parse_msg [line]
+(defn parse-msg [line]
   (let [parts (str/split line #" ")]
     (->Message
      (get parts 1)
@@ -23,16 +23,16 @@
   (cond (str/starts-with? line ":tmi.twitch.tv") nil
         (str/starts-with? line ":justinfan6969") nil
         (str/starts-with? line "PING") (->Message "PING" "" "" "")
-        :else (parse_msg line)))
+        :else (parse-msg line)))
 
-(defn handle_msg [msg, writer]
+(defn handle-msg [msg, writer]
   (case (:msg-type msg)
     "PING" (do
              (println "Answering PING with PONG")
-             (send_raw writer "PONG :tmi.twitch.tv"))
+             (send-raw writer "PONG :tmi.twitch.tv"))
     (println msg)))
 
-(defn read_loop [reader, writer]
+(defn read-loop [reader, writer]
   (loop []
     (let [line (.readLine reader)]
       (if (nil? line)
@@ -40,13 +40,13 @@
           (println "No more lines in reader."))
         (do
           (let [msg (parse line)]
-            (when msg (handle_msg msg writer)))
+            (when msg (handle-msg msg writer)))
           (recur))))))
 
 (defn join [writer]
-  (send_raw writer "PASS oauth: ")
-  (send_raw writer "NICK justinfan6969")
-  (send_raw writer "JOIN #matthewde"))
+  (send-raw writer "PASS oauth: ")
+  (send-raw writer "NICK justinfan6969")
+  (send-raw writer "JOIN #matthewde"))
 
 (defn run
   "Starts the bot."
@@ -55,7 +55,7 @@
     (with-open [writer (jio/writer socket)]
       (join writer)
       (with-open [reader (jio/reader socket)]
-        (read_loop reader writer)))))
+        (read-loop reader writer)))))
 
 (defn -main
   [& args]
