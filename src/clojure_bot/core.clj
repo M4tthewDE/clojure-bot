@@ -4,13 +4,14 @@
   (:require [clojure.string :as str])
   (:gen-class))
 
-(defrecord Message [msg-type channel content])
+(defrecord Message [msg-type channel user content])
 
 (defn parse_msg [line]
   (let [parts (str/split line #" ")]
     (->Message
      (get parts 1)
      (subs (get parts 2) 1)
+     (subs (get (str/split (get parts 0) #"!") 0) 1)
      (subs (str/join " " (drop 3 parts)) 1))))
 
 (defn parse [line]
