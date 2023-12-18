@@ -35,13 +35,12 @@
 (defn read-loop [reader, writer]
   (loop []
     (let [line (.readLine reader)]
-      (if (nil? line)
-        (do
-          (println "No more lines in reader."))
+      (if line
         (do
           (if-let [msg (parse line)]
             (handle-msg msg writer))
-          (recur))))))
+          (recur))
+        (println "No more lines in reader.")))))
 
 (defn join [writer]
   (send-raw writer "PASS oauth: ")
