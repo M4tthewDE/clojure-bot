@@ -8,7 +8,7 @@
 (defrecord Message [msg-type channel user content]
   Object
   (toString [this]
-    (str "msg-type: " msg-type ", channel: " channel ", user: " user ", content: " content)))
+    (str msg-type " in #" channel " by " user (if (> (count content) 0) (str ": " content) ""))))
 
 (defn parse-msg [line]
   (let [parts (str/split line #" ")]
