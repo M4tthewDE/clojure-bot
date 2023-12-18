@@ -28,7 +28,7 @@
         (do
         ;; TODO answer PING with PONG
           (let [msg (parse line)]
-            (if msg (println msg)))
+            (when msg (println msg)))
           (recur))))))
 
 (defn join [writer]
