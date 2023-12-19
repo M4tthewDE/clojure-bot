@@ -13,10 +13,20 @@
 (defn parse-msg [line]
   (let [parts (str/split line #" ")]
     (map->Message {:msg-type (get parts 1)
-                   :channel (subs (get parts 2) 1)
-                   :user (subs (get (str/split (get parts 0) #"!") 0) 1)
+                   :channel (-> parts
+                                (get 2)
+                                (subs 1))
+                   :user (-> parts
+                             (get 0)
+                             (str/split #"!")
+                             (get 0)
+                             (subs 1))
                    :content (if (> (count parts) 3)
-                              (subs (str/join " " (drop 3 parts)) 1) "")})))
+                              (as-> parts p
+                                (drop 3 p)
+                                (str/join " " p)
+                                (subs p 1))
+                              "")})))
 
 (defn parse [line, username]
   (cond (str/starts-with? line ":tmi.twitch.tv") nil
