@@ -61,7 +61,8 @@
 
 (defn handle-cmd [cmd, writer, channel]
   (case (:cmd-name cmd)
-    "ping" (ping-cmd writer channel)))
+    "ping" (ping-cmd writer channel)
+    (println (str "[cmd] Unrecognized command '" (:cmd-name cmd) "'"))))
 
 (defn handle-msg [msg, writer]
   (case (:msg-type msg)
