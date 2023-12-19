@@ -32,7 +32,13 @@
 (defrecord Command [cmd-name])
 
 (defn parse-command [content]
-  (if (str/starts-with? content "!") (->Command (subs (get (str/split content #" ") 0) 1)) nil))
+  (if (str/starts-with? content "!")
+    (-> content
+        (str/split #" ")
+        (get 0)
+        (subs 1)
+        ->Command)
+    nil))
 
 (defn handle-msg [msg, writer]
   (case (:msg-type msg)
