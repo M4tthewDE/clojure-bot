@@ -62,17 +62,17 @@
 (defn handle-cmd [cmd, writer, channel]
   (case (:cmd-name cmd)
     "ping" (ping-cmd writer channel)
-    (println (str "[cmd] Unrecognized command '" (:cmd-name cmd) "'"))))
+    (println (str "WARN [cmd] Unrecognized command '" (:cmd-name cmd) "'"))))
 
 (defn handle-msg [msg, writer]
   (case (:msg-type msg)
     "PING" (do
-             (println "[reader] Answering PING with PONG")
+             (println "INFO [reader] Answering PING with PONG")
              (send-raw writer "PONG :tmi.twitch.tv"))
     "JOIN" (send-privmsg writer (:channel msg) (str "Joined #" (:channel msg)))
     (if-let [cmd (parse-command (:content msg))]
       (do
-        (println (str "[cmd] Handling " cmd))
+        (println (str "INFO [cmd] Handling " cmd))
         (handle-cmd cmd writer (:channel msg))))))
 
 (defn read-loop [reader, writer, username]
@@ -82,10 +82,10 @@
         (do
           (if-let [msg (parse line username)]
             (do
-              (println (str "[reader] " msg))
+              (println (str "INFO [reader] " msg))
               (handle-msg msg writer)))
           (recur))
-        (println "No more lines in reader.")))))
+        (println "WARN [reader] No more lines in reader.")))))
 
 (defn join [writer, config]
   (send-raw writer (str "PASS oauth:" (get config "token")))
