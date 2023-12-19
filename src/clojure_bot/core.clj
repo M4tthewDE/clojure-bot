@@ -62,11 +62,10 @@
     "PING" (do
              (println "[reader] Answering PING with PONG")
              (send-raw writer "PONG :tmi.twitch.tv"))
-    (do (println (str "[reader] " msg))
-        (if-let [cmd (parse-command (:content msg))]
-          (do
-            (println (str "[cmd] Handling " cmd))
-            (handle-cmd cmd writer (:channel msg)))))))
+    (if-let [cmd (parse-command (:content msg))]
+      (do
+        (println (str "[cmd] Handling " cmd))
+        (handle-cmd cmd writer (:channel msg))))))
 
 (defn read-loop [reader, writer, username]
   (loop []
@@ -74,7 +73,9 @@
       (if line
         (do
           (if-let [msg (parse line username)]
-            (handle-msg msg writer))
+            (do
+              (println (str "[reader] " msg))
+              (handle-msg msg writer)))
           (recur))
         (println "No more lines in reader.")))))
 
