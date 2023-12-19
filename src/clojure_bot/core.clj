@@ -62,6 +62,7 @@
     "PING" (do
              (println "[reader] Answering PING with PONG")
              (send-raw writer "PONG :tmi.twitch.tv"))
+    "JOIN" (send-raw writer (str "PRIVMSG #" (:channel msg) " :Joined #" (:channel msg)))
     (if-let [cmd (parse-command (:content msg))]
       (do
         (println (str "[cmd] Handling " cmd))
