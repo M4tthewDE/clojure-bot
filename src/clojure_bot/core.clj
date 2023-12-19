@@ -56,9 +56,12 @@
         ->Command)
     nil))
 
+(defn ping-cmd [writer channel]
+  (send-privmsg writer channel "PONG!"))
+
 (defn handle-cmd [cmd, writer, channel]
   (case (:cmd-name cmd)
-    "ping" (send-privmsg writer channel "PONG!")))
+    "ping" (ping-cmd writer channel)))
 
 (defn handle-msg [msg, writer]
   (case (:msg-type msg)
