@@ -59,9 +59,15 @@
 (defn ping-cmd [writer channel]
   (send-privmsg writer channel "PONG!"))
 
+(defn shutdown-cmd [writer channel]
+  (do
+    (send-privmsg writer channel "Shutting down!")
+    0))
+
 (defn handle-cmd [cmd, writer, channel]
   (case (:cmd-name cmd)
     "ping" (ping-cmd writer channel)
+    "shutdown" (shutdown-cmd writer channel)
     (println (str "WARN [cmd] Unrecognized command '" (:cmd-name cmd) "'"))))
 
 (defn handle-msg [msg, writer]
@@ -79,11 +85,12 @@
   (loop []
     (let [line (.readLine reader)]
       (if line
-        (do
-          (if-let [msg (parse line username)]
-            (do
-              (println (str "INFO [reader] " msg))
-              (handle-msg msg writer)))
+        (if-let [msg (parse line username)]
+          (do
+            (println (str "INFO [reader] " msg))
+            (if (handle-msg msg writer)
+              (println "INFO [reader] Shutting down!")
+              (recur)))
           (recur))
         (println "WARN [reader] No more lines in reader.")))))
 
