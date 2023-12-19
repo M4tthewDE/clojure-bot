@@ -39,6 +39,9 @@
     (.write writer (str msg "\r\n"))
     (.flush writer)))
 
+(defn send-privmsg [writer, channel, content]
+  (send-raw writer (str "PRIVMSG #" channel " :" content)))
+
 (defrecord Command [cmd-name]
   Object
   (toString [this]
@@ -55,14 +58,14 @@
 
 (defn handle-cmd [cmd, writer, channel]
   (case (:cmd-name cmd)
-    "ping" (send-raw writer (str "PRIVMSG #" channel " :PONG!"))))
+    "ping" (send-privmsg writer channel "PONG!")))
 
 (defn handle-msg [msg, writer]
   (case (:msg-type msg)
     "PING" (do
              (println "[reader] Answering PING with PONG")
              (send-raw writer "PONG :tmi.twitch.tv"))
-    "JOIN" (send-raw writer (str "PRIVMSG #" (:channel msg) " :Joined #" (:channel msg)))
+    "JOIN" (send-privmsg writer (:channel msg) (str "Joined #" (:channel msg)))
     (if-let [cmd (parse-command (:content msg))]
       (do
         (println (str "[cmd] Handling " cmd))
